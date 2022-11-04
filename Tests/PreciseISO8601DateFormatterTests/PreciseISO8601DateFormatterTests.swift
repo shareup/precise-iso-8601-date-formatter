@@ -60,13 +60,11 @@ final class PreciseISO8601DateFormatterTests: XCTestCase {
     func testThreadSafety() {
         let formatter = PreciseISO8601DateFormatter()
 
-        let dates: [Date] = (0 ..< 1000).map {
-            Date(timeIntervalSince1970: TimeInterval($0))
-        }
+        let dates = dates(count: 1000)
 
         let group = DispatchGroup()
 
-        (0 ..< 1000).forEach { _ in
+        (0 ..< 10_000).forEach { _ in
             group.enter()
 
             DispatchQueue.global().async {
@@ -150,6 +148,37 @@ final class PreciseISO8601DateFormatterTests: XCTestCase {
 
         XCTAssertNil(output.pointee)
     }
+
+    // 0.646 sec
+    func testPerformanceOfISO8601DateFormatter() {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withFractionalSeconds, .withInternetDateTime]
+
+        let dates = dates(count: 10_000)
+
+        measure {
+            for date in dates {
+                let string = formatter.string(from: date)
+                let date = formatter.date(from: string)
+                assert(date != nil)
+            }
+        }
+    }
+
+    // 0.284 sec
+    func testPerformanceOfPreciseISO8601DateFormatter() {
+        let formatter = PreciseISO8601DateFormatter()
+
+        let dates = dates(count: 10_000)
+
+        measure {
+            for date in dates {
+                let string = formatter.string(from: date)
+                let date = formatter.date(from: string)
+                assert(date != nil)
+            }
+        }
+    }
 }
 
 private extension PreciseISO8601DateFormatterTests {
@@ -207,5 +236,11 @@ private extension PreciseISO8601DateFormatterTests {
             second: 00,
             nanosecond: Int(NSEC_PER_USEC) * 0
         ).date!
+    }
+
+    func dates(count: Int) -> [Date] {
+        (0 ..< count).map {
+            Date(timeIntervalSince1970: TimeInterval($0))
+        }
     }
 }
