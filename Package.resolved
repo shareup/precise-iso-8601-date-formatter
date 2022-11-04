@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "synchronized",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/shareup/synchronized.git",
+      "state" : {
+        "revision" : "32f43e551c0c552378467f5f31486d0715374a08",
+        "version" : "3.2.0"
+      }
+    }
+  ],
+  "version" : 2
+}
