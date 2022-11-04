@@ -57,6 +57,19 @@ final class PreciseISO8601DateFormatterTests: XCTestCase {
         XCTAssertNil(formatter.date(from: "2021-02-03T12:48:00.00012ZZ"))
     }
 
+    func testEncodedAndDecodedDatesEqualOriginal() throws {
+        let formatter = PreciseISO8601DateFormatter()
+
+        let original = Date()
+
+        let encoded1 = formatter.string(from: original)
+        let decoded = try XCTUnwrap(formatter.date(from: encoded1))
+        let encoded2 = formatter.string(from: decoded)
+
+        XCTAssertEqual(original, decoded)
+        XCTAssertEqual(encoded1, encoded2)
+    }
+
     func testThreadSafety() {
         let formatter = PreciseISO8601DateFormatter()
 
@@ -149,7 +162,6 @@ final class PreciseISO8601DateFormatterTests: XCTestCase {
         XCTAssertNil(output.pointee)
     }
 
-    // 0.646 sec
     func testPerformanceOfISO8601DateFormatter() {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withFractionalSeconds, .withInternetDateTime]
@@ -165,7 +177,6 @@ final class PreciseISO8601DateFormatterTests: XCTestCase {
         }
     }
 
-    // 0.284 sec
     func testPerformanceOfPreciseISO8601DateFormatter() {
         let formatter = PreciseISO8601DateFormatter()
 
