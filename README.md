@@ -22,7 +22,7 @@ To use PreciseISO8601DateFormatter with the Swift Package Manager, add a depende
 ```swift
 let package = Package(
   dependencies: [
-    .package(url: "https://github.com/shareup/precise-iso-8601-date-formatter.git", from: "1.0.1")
+    .package(url: "https://github.com/shareup/precise-iso-8601-date-formatter.git", from: "1.0.2")
   ]
 )
 ```
