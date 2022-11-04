@@ -15,7 +15,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/shareup/synchronized.git",
-            .upToNextMajor(from: "3.2.0")
+            .upToNextMajor(from: "4.0.0")
         ),
     ],
     targets: [
