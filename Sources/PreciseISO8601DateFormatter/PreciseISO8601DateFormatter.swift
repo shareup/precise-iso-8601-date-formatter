@@ -3,10 +3,13 @@ import Synchronized
 
 public final class PreciseISO8601DateFormatter: Formatter, @unchecked
 Sendable {
-    private let deps: Locked<Dependencies>
+    private let calendar: Locked<Calendar>
 
     override public init() {
-        deps = Locked(Dependencies())
+        var calendar = Calendar(identifier: .iso8601)
+        calendar.timeZone = TimeZone(identifier: "UTC")!
+        calendar.locale = Locale(identifier: "en_US_POSIX")
+        self.calendar = Locked(calendar)
         super.init()
     }
 
@@ -37,24 +40,27 @@ Sendable {
 
 public extension PreciseISO8601DateFormatter {
     func string(from date: Date) -> String {
-        deps.access { deps in
-            let components = deps.calendar.dateComponents(
-                iso8601Components,
-                from: date
-            )
-
-            return String(
-                format: "%04d-%02d-%02dT%02d:%02d:%02d.%06dZ",
-                locale: deps.locale,
-                components.year!,
-                components.month!,
-                components.day!,
-                components.hour!,
-                components.minute!,
-                components.second!,
-                components.nanosecond! / nsecPerUsec
-            )
+        let components = calendar.access { calendar in
+            calendar.dateComponents(iso8601Components, from: date)
         }
+
+        let (quotient, remainder) = components
+            .nanosecond!
+            .quotientAndRemainder(dividingBy: nsecPerUsec)
+
+        let microsecond = quotient + (remainder >= 500 ? 1 : 0)
+
+        return String(
+            format: "%04d-%02d-%02dT%02d:%02d:%02d.%06dZ",
+            locale: nil,
+            components.year!,
+            components.month!,
+            components.day!,
+            components.hour!,
+            components.minute!,
+            components.second!,
+            microsecond
+        )
     }
 
     func date(from string: String) -> Date? {
@@ -107,7 +113,7 @@ public extension PreciseISO8601DateFormatter {
             components.nanosecond = nsecPerUsec * (try value(at: 20 ..< 26))
             try assertValue(at: 26, equals: "Z")
 
-            return deps.access { $0.calendar.date(from: components) }
+            return calendar.access { $0.date(from: components) }
         } catch {
             return nil
         }
@@ -115,19 +121,6 @@ public extension PreciseISO8601DateFormatter {
 }
 
 private struct ParseError: Error {}
-
-private struct Dependencies {
-    let calendar: Calendar
-    let locale: Locale
-
-    init() {
-        locale = Locale(identifier: "en_US_POSIX")
-        var calendar = Calendar(identifier: .iso8601)
-        calendar.timeZone = TimeZone(identifier: "UTC")!
-        calendar.locale = locale
-        self.calendar = calendar
-    }
-}
 
 private let nsecPerUsec = Int(NSEC_PER_USEC)
 
