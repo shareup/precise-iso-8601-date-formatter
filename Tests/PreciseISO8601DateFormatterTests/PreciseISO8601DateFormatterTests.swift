@@ -57,17 +57,20 @@ final class PreciseISO8601DateFormatterTests: XCTestCase {
         XCTAssertNil(formatter.date(from: "2021-02-03T12:48:00.00012ZZ"))
     }
 
-    func testEncodedAndDecodedDatesEqualOriginal() throws {
+    func testRoundtrippingAlwaysResultsInIdenticalDates() throws {
         let formatter = PreciseISO8601DateFormatter()
 
-        let original = Date()
+        let encoded1 = formatter.string(from: Date())
+        let decoded1 = try XCTUnwrap(formatter.date(from: encoded1))
+        let encoded2 = formatter.string(from: decoded1)
+        let decoded2 = try XCTUnwrap(formatter.date(from: encoded2))
+        let encoded3 = formatter.string(from: decoded2)
+        let decoded3 = try XCTUnwrap(formatter.date(from: encoded3))
 
-        let encoded1 = formatter.string(from: original)
-        let decoded = try XCTUnwrap(formatter.date(from: encoded1))
-        let encoded2 = formatter.string(from: decoded)
-
-        XCTAssertEqual(original, decoded)
         XCTAssertEqual(encoded1, encoded2)
+        XCTAssertEqual(decoded1, decoded2)
+        XCTAssertEqual(encoded1, encoded3)
+        XCTAssertEqual(decoded1, decoded3)
     }
 
     func testThreadSafety() {

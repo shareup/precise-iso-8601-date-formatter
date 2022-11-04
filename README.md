@@ -4,6 +4,8 @@
 
 `PreciseISO8601DateFormatter` is intended to be a drop-in replacement for `DateFormatter` or `ISO8601DateFormatter`. It's a subclass of [Formatter](https://developer.apple.com/documentation/foundation/formatter). Like Apple's built-in date formatters, `PreciseISO8601DateFormatter` is thread-safe.
 
+It's important to note, if you supply the formatter with a date with nanosecond precision, encode it into a string, and then decode that string back into a date, the original date and the decoded date will be different. The decoded date will have lost its nanosecond precision _(i.e., the date's nanosecond component would go from 448814988 to 448814000)_. This means, if you use `PreciseISO8601DateFormatter` to decode the date-time strings returned by your server, you should also use this formatter to store the encoded date-time strings locally.
+
 ## Usage
 
 ```swift
@@ -20,7 +22,7 @@ To use PreciseISO8601DateFormatter with the Swift Package Manager, add a depende
 ```swift
 let package = Package(
   dependencies: [
-    .package(url: "https://github.com/shareup/precise-iso-8601-date-formatter.git", from: "1.0.0")
+    .package(url: "https://github.com/shareup/precise-iso-8601-date-formatter.git", from: "1.0.1")
   ]
 )
 ```

@@ -44,6 +44,12 @@ public extension PreciseISO8601DateFormatter {
             calendar.dateComponents(iso8601Components, from: date)
         }
 
+        let (quotient, remainder) = components
+            .nanosecond!
+            .quotientAndRemainder(dividingBy: nsecPerUsec)
+
+        let microsecond = quotient + (remainder >= 500 ? 1 : 0)
+
         return String(
             format: "%04d-%02d-%02dT%02d:%02d:%02d.%06dZ",
             locale: nil,
@@ -53,7 +59,7 @@ public extension PreciseISO8601DateFormatter {
             components.hour!,
             components.minute!,
             components.second!,
-            components.nanosecond! / nsecPerUsec
+            microsecond
         )
     }
 
